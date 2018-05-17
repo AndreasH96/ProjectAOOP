@@ -1,6 +1,6 @@
-package Filters;
+package Modifiers;
 
-import Framework.ImageFilter;
+import Framework.ImageModifier;
 import Framework.SliderBox;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -11,28 +11,34 @@ import javafx.scene.image.ImageView;
 
 import java.awt.image.BufferedImage;
 
-public class Swirl extends ImageFilter{
+public class Swirl extends ImageModifier {
     private Image originalImage;
+    private Image returnImage;
     private String filterName = "Swirl";
     private Double intensity;
     private Slider theSlider;
-
+    /**
+     *
+     * @param input The ImageView containing a image to be swirled
+     * @return ImageView with its image swirled
+     */
     @Override
     public ImageView activate(ImageView input) {
         originalImage = input.getImage();
+        returnImage = input.getImage();
         ImageView resultView = input;
         initSlider();
-        double x0 = 0.5 * ( input.getFitWidth() -1) ;
-        double y0 = 0.5 *(input.getFitHeight() -1);
+        double x0 = 0.5 * ( input.getImage().getWidth() -1) ;
+        double y0 = 0.5 *(input.getImage().getHeight() -1);
         theSlider.valueProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 intensity = newValue.doubleValue() ;
-                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(input.getImage(),null);
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(returnImage,null);
                 BufferedImage tempBufferedImage = new BufferedImage((int)bufferedImage.getWidth(),(int)bufferedImage.getHeight(),BufferedImage.TYPE_INT_ARGB);
                 for(int x = 0; x<bufferedImage.getWidth();x++) {
                     for (int y = 0; y < bufferedImage.getHeight(); y++) {
-                        double deltaX = x - x0;
+                        double deltaX = x0 - x;
                         double deltaY = y - y0;
                         double radius = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
                         double angle = Math.PI / 256 * radius * intensity;
@@ -56,14 +62,18 @@ public class Swirl extends ImageFilter{
 
         return resultView;
 }
-
+    /**
+     *
+     * @param input The ImageView containing an image to be reset
+     * @return ImageView with its image reset
+     */
     @Override
     public ImageView deactivate(ImageView input) {
         input.setEffect(null);
         input.setImage(originalImage);
         return input;
     }
-    public void initSlider(){
+    private void initSlider(){
         theSlider = new Slider(0,10,0);
         theSlider.setShowTickLabels(true);
         theSlider.setShowTickMarks(true);

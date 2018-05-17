@@ -1,17 +1,16 @@
-package Filters;
+package Modifiers;
 
-import Framework.ImageFilter;
-import javafx.scene.effect.Blend;
-import javafx.scene.effect.BlendMode;
+import Framework.ImageModifier;
 import javafx.scene.effect.ColorAdjust;
-import javafx.scene.effect.ColorInput;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.paint.Color;
 
-public class GrayScale  extends ImageFilter {
+public class GrayScale  extends ImageModifier {
     private String filterName = "Grayscale";
-
+    /**
+     *
+     * @param input The ImageView to be grayscaled
+     * @return ImageView only containing it's gray colors
+     */
     @Override
     public ImageView activate (ImageView input) {
         ImageView returnImageView = input;
@@ -20,6 +19,11 @@ public class GrayScale  extends ImageFilter {
         returnImageView.setEffect(grayScale);
         return returnImageView;
     }
+    /**
+     *
+     * @param input The ImageView to be reset to colored
+     * @return original ImageView
+     */
 
     @Override
     public ImageView deactivate(ImageView input) {
