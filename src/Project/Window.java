@@ -1,4 +1,4 @@
-package Framework;
+package Project;
 
 
 import Modifiers.*;
@@ -19,25 +19,25 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import javax.imageio.ImageIO;
 import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-public abstract class  Window {
-    private Stage window;
+public abstract class  Window extends Stage{
+    //private Stage window;
     private final int SCENE_WIDTH = 700, SCENE_HEIGHT = 700;
     private Scene mainScene;
-    private MenuBar theMenuBar;
-    private File TESTIMAGE;
-    private ImageView theImageViewer;
+    private ImageView theImageView;
     private Group mainRoot;
     private KeyCodeCombination undoKeyCombination = new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_ANY);
-    private KeyCodeCombination undoRemovalCompination = new KeyCodeCombination(KeyCode.Y,KeyCombination.CONTROL_ANY);
+    private KeyCodeCombination undoRemovalCombination = new KeyCodeCombination(KeyCode.Y,KeyCombination.CONTROL_ANY);
     private MenuBar menuBar;
     private  VBox pane;
 
@@ -51,21 +51,21 @@ public abstract class  Window {
 
 
     public  Window(Stage primaryStage){
-        window = primaryStage;
-        window.setTitle("Main Window");
-        window.setResizable(false);
-        theImageViewer = createCenterComponent();
-        window.setOnCloseRequest(e ->{
-            e.consume();
-            window.close();
+       setTitle("Main Window");
+       setResizable(false);
+
+        theImageView = createCenterComponent();
+        setOnCloseRequest(e ->{
+           e.consume();
+             close();
         });
-        window.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+        addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
                 if(undoKeyCombination.match(event)){
                     removeModifier();
                 }
-                if(undoRemovalCompination.match(event)){
+                if(undoRemovalCombination.match(event)){
                     undoRemoval();
                 }
             }
@@ -78,7 +78,7 @@ public abstract class  Window {
 
         // MenuBar
          menuBar = new MenuBar();
-        menuBar.prefWidthProperty().bind(primaryStage.widthProperty());
+        menuBar.prefWidthProperty().bind(this.widthProperty());
         pane.getChildren().add(menuBar);
 
 
@@ -142,7 +142,7 @@ public abstract class  Window {
         // This section handles the save file operation
         MenuItem itemSave = new MenuItem("Save");
         itemSave.setOnAction(event -> {
-            Image FXImage = theImageViewer.snapshot(new SnapshotParameters(), null);
+            Image FXImage = theImageView.snapshot(new SnapshotParameters(), null);
             RenderedImage saveImage = SwingFXUtils.fromFXImage(FXImage,null);
             FileChooser fileSaver = new FileChooser();
             fileSaver.setTitle("Save Edited Image");
@@ -165,7 +165,7 @@ public abstract class  Window {
         itemExit.setOnAction(e -> Platform.exit());
 
         // This section handles filters
-        Menu filter = new Menu ("Filter");
+        Menu modifiers = new Menu ("Modify");
 
         // Swirl
         MenuItem swirl = new MenuItem("Swirl");
@@ -199,7 +199,7 @@ public abstract class  Window {
 
         // Vertical stripes in Sub Menu
         MenuItem vertical_Stripes = new MenuItem("Vertical Stripes");
-        vertical_Stripes.setOnAction(event -> setCurrentModifier(new Vertical_Stripes()));
+        vertical_Stripes.setOnAction(event -> setCurrentModifier(new VerticalStripes()));
 
         // Chess in Sub Menu
         MenuItem chess = new MenuItem("Chess");
@@ -207,38 +207,86 @@ public abstract class  Window {
 
         // Black Circle in Sub Menu
         MenuItem black_Circle = new MenuItem("Black Circle");
-        black_Circle.setOnAction(event -> setCurrentModifier(new Black_Circle()));
+        black_Circle.setOnAction(event -> setCurrentModifier(new BlackCircle()));
 
         // Restore image to original
-        MenuItem noFilter = new MenuItem("No Filter");
+        MenuItem noFilter = new MenuItem("No Modifier");
         noFilter.setOnAction(event ->  removeAllModifiers());
 
         // Add all Sub Menu patterns to the menu
         patterns.getItems().addAll(vertical_Stripes,chess,black_Circle);
 
         // Add all filters and patterns to the filter menu
-        filter.getItems().addAll(swirl,grayScale,flipX,red_Filter, paint,brightness,invertFilter,patterns,noFilter);
+        modifiers.getItems().addAll(swirl,grayScale,flipX,red_Filter, paint,brightness,invertFilter,patterns,noFilter);
 
         // Help menu
+        File javaDoc =new File( (new File("").getAbsolutePath() + "/JavaDoc/index.html"));
+        WebView javaDocView = new WebView();
+        WebEngine webEngine = javaDocView.getEngine();
+        ScrollPane javaPane = new ScrollPane();
+
         Menu helpMenu = new Menu("Help");
-        MenuItem help = new MenuItem("Help");
-        help.setOnAction(event -> TextBox.display("Help",  "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tinci"));
+        MenuItem  help = new MenuItem("Help");
+        File helpFile = new File(new File("").getAbsolutePath() + "/src/Texts/help");
+        String helpText ="";
+        try {
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(helpFile));
+            String line;
+            while ((line = bufferedReader.readLine()) != null){
+                helpText = helpText + line +"\n";
+            }
+        }
+      catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Text helpTextNode = new Text(helpText);
+        help.setOnAction(event -> NodeBox.display("Help",helpTextNode));
+
         MenuItem about = new MenuItem("About");
-        about.setOnAction(event -> TextBox.display("About", "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tinci"));
+        File aboutFile = new File(new File("").getAbsolutePath() + "/src/Texts/about");
+        String aboutText ="";
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(aboutFile));
+            String line;
+            while ((line = bufferedReader.readLine()) != null){
+                aboutText = aboutText + line +"\n";
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Text aboutTextNode = new Text(aboutText);
+        about.setOnAction(event -> NodeBox.display("About", aboutTextNode ));
 
-        helpMenu.getItems().addAll(help, about);
 
-        theImageViewer.setPreserveRatio(true);
-        pane.getChildren().add(theImageViewer);
+        MenuItem openJavaDoc = new MenuItem("JavaDoc");
+        openJavaDoc.setOnAction(event -> {
+            webEngine.load(javaDoc.toURI().toString());
+            String test = javaDoc.toURI().toString();
+            NodeBox.display("Help",javaDocView);
+
+        });
+        helpMenu.getItems().addAll(help, about,openJavaDoc);
+
+        theImageView.setPreserveRatio(true);
+        pane.getChildren().add(theImageView);
 
         file.getItems().addAll(itemOpen,itemCreator, itemSave, itemExit);
-        menuBar.getMenus().addAll(file, filter, helpMenu);
+        menuBar.getMenus().addAll(file, modifiers, helpMenu);
         mainRoot.getChildren().addAll(pane);
-
-        window.setScene(mainScene);
-        window.show();
-
+       setScene(mainScene);
+        show();
     }
+
+    /**
+     *
+     * @param newImageView The ImageView to scale the scene to
+     * @precondition Window initialized
+     * @postcondition Scene updated
+     */
     public void updateScene(ImageView newImageView){
         Group newRoot = new Group();
         Scene newScene;
@@ -257,11 +305,11 @@ public abstract class  Window {
         newImageView.setPreserveRatio(true);
         newImageView.fitWidthProperty().bind(newScene.widthProperty());
         newImageView.fitHeightProperty().bind(newScene.heightProperty());
-        theImageViewer = newImageView;
+        theImageView = newImageView;
         mainScene =newScene;
         mainRoot = newRoot;
-        window.setScene(mainScene);
-        window.sizeToScene();
+        setScene(mainScene);
+        sizeToScene();
     }
 
 }

@@ -1,7 +1,7 @@
 package Modifiers;
 
-import Framework.ImageModifier;
-import Framework.SliderBox;
+import Project.ImageModifier;
+import Project.SliderBox;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
@@ -21,12 +21,14 @@ public class Swirl extends ImageModifier {
      *
      * @param input The ImageView containing a image to be swirled
      * @return ImageView with its image swirled
+     *  @precondition ImageView not null
      */
     @Override
     public ImageView activate(ImageView input) {
         originalImage = input.getImage();
         returnImage = input.getImage();
         ImageView resultView = input;
+
         initSlider();
         double x0 = 0.5 * ( input.getImage().getWidth() -1) ;
         double y0 = 0.5 *(input.getImage().getHeight() -1);
@@ -47,6 +49,7 @@ public class Swirl extends ImageModifier {
                         if (tempX >= 0 && tempX < bufferedImage.getWidth() && tempY >= 0 && tempY < bufferedImage.getHeight()) {
                             tempBufferedImage.setRGB(x, y, bufferedImage.getRGB(tempX, tempY));
 
+
                         }
 
                     }
@@ -56,9 +59,9 @@ public class Swirl extends ImageModifier {
                 Image newImage = SwingFXUtils.toFXImage(tempBufferedImage,null);
                 resultView.setImage(newImage);
 
+
             }
         });
-
 
         return resultView;
 }
@@ -66,10 +69,11 @@ public class Swirl extends ImageModifier {
      *
      * @param input The ImageView containing an image to be reset
      * @return ImageView with its image reset
+     * @precondition  activate has been used
+     * @postcondition Modifier no longer active
      */
     @Override
     public ImageView deactivate(ImageView input) {
-        input.setEffect(null);
         input.setImage(originalImage);
         return input;
     }
